@@ -1,48 +1,30 @@
 import arc.*;
-//import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImage;
 import java.awt.Color;
-import java.awt.Font;
+//import java.awt.Font;
 
 public class ReviewProject{
     public static void main(String[] args){
         Console con = new Console("RPG Game",800,800);
         //font
-		Font fntVera = con.loadFont("VeraMono.ttf",20);
-		con.setDrawFont(fntVera);
-		con.setTextFont(fntVera);
-        
-        /*loading pictures
-        BufferedImage imgGrass;
-		imgGrass = con.loadImage("grass.png");
-        BufferedImage imgTrees;
-		imgTrees = con.loadImage("tree.png");
-        BufferedImage imgWater;
-		imgWater = con.loadImage("water.png");
-        BufferedImage imgBuild;
-		imgBuild = con.loadImage("building.png");
-        BufferedImage imgE1;
-		imgE1 = con.loadImage("enemy1.png");
-        
-        BufferedImage imgE2;
-		imgE2 = con.loadImage("enemy2.png");
-        BufferedImage imgE3;
-		imgE3 = con.loadImage("enemy3.png");
-        BufferedImage imgH;
-		imgH = con.loadImage("hero.png");
-        */
-        
+		//Font fntVera = con.loadFont("VeraMono.ttf",20);
+		//con.setDrawFont(fntVera);
+		//con.setTextFont(fntVera);
+        //variables
+        String strMapChoice = "map.csv";
         String strChoice;
         strChoice = Menu(con);
         Clear(con);
-        if(strChoice.equals("play")){
-            Play(con);
-        }else if(strChoice.equals("map")){
-            String strMapChoice;
+        if(strChoice.equals("map")){
             strMapChoice = Map(con);
             Clear(con);
-            Menu(con);
-            con.println(strMapChoice);
-        }  
+            //Menu(con);
+            //con.println(strMapChoice);
+        }else if((strChoice.equals("play")) && (strMapChoice.equals("map.csv"))){
+            Play1(con);
+        }else if((strChoice.equals("play")) && (strMapChoice.equals("map2.csv"))){
+            //Play2(con);
+        }
     }
     //game menu
     public static String Menu(Console con){
@@ -114,9 +96,72 @@ public class ReviewProject{
     }
     
     //play option
-    public static void Play(Console con){
+    public static void Play1(Console con){
         Clear(con);
+        //variables
+        String strLine;
+        int intCountRow = 0;
+        int intCountCol = 0;
+        String strSplit[];
+        //array
+        String strMap[][];
+        strMap = new String[20][20];
+        //csv file
+        TextInputFile txtMap = new TextInputFile("map.csv");
+        
+        for(intCountRow = 0; intCountRow < 20; intCountRow++){
+            strLine = txtMap.readLine();
+            strSplit = strLine.split(",");
+
+            for(intCountCol = 0; intCountCol < 20; intCountCol++){
+                strMap[intCountRow][intCountCol] = strSplit[intCountCol];
+                drawMap(con,intCountCol,intCountRow,strMap);
+            }
+        }
         con.println("woohoo game");
+    }
+
+    //map loading
+    public static void drawMap(Console con, int intCountColumns, int intCountRows, String strMap[][]){
+        //variables
+        String strSquare;
+        int intBlockX = 0;
+        int intBlockY = 0;
+
+        //loading pics
+        BufferedImage imgWater = con.loadImage("water.png");
+        BufferedImage imgGrass = con.loadImage("grass.png");
+        BufferedImage imgTree = con.loadImage("tree.png");
+        BufferedImage imgBuilding = con.loadImage("building.png");
+        BufferedImage imgEnemy1 = con.loadImage("enemy1.png");
+        BufferedImage imgEnemy2 = con.loadImage("enemy2.png");
+        BufferedImage imgEnemy3 = con.loadImage("enemy3.png");
+
+        //drawing board
+        for(intCountRows = 0; intCountRows < 20; intCountRows++){
+            for(intCountColumns = 0; intCountColumns < 20; intCountColumns++){
+                strSquare = strMap[intCountRows][intCountColumns];
+                if(strSquare.equals("g")){
+                    con.drawImage(imgGrass, intBlockX, intBlockY);
+                }else if(strSquare.equals("w")){
+                    con.drawImage(imgWater, intBlockX, intBlockY);
+                }else if(strSquare.equals("t")){
+                    con.drawImage(imgTree, intBlockX, intBlockY);
+                }else if(strSquare.equals("b")){
+                    con.drawImage(imgBuilding, intBlockX, intBlockY);
+                }else if(strSquare.equals("e1")){
+                    con.drawImage(imgEnemy1, intBlockX, intBlockY);
+                }else if(strSquare.equals("e2")){
+                    con.drawImage(imgEnemy2, intBlockX, intBlockY);
+                }else if(strSquare.equals("e3")){
+                    con.drawImage(imgEnemy3, intBlockX, intBlockY);
+                }
+                intBlockX += 30;
+            }
+            intBlockX = 0;
+            intBlockY += 30;
+        }
+        con.repaint();
     }
 
     //map selection
