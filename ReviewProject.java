@@ -3,6 +3,10 @@ import java.awt.image.BufferedImage;
 import java.awt.Color;
 //import java.awt.Font;
 
+//Michelle Zhang
+//Gr 11 Review Project
+//Version 10
+
 public class ReviewProject{
     public static void main(String[] args){
         Console con = new Console("RPG Game",800,800);
@@ -18,7 +22,6 @@ public class ReviewProject{
         if(strChoice.equals("map")){
             strMapChoice = Map(con);
             Clear(con);
-            //Menu(con);
             //con.println(strMapChoice);
         }else if((strChoice.equals("play")) && (strMapChoice.equals("map.csv"))){
             Play1(con);
@@ -32,10 +35,9 @@ public class ReviewProject{
 		int intMouseX = 0;
 		int intMouseY = 0;
 		int intMouseClick = 0;
-		String strRepeat;
-		strRepeat = "yes";
+		boolean boolRepeat = true;
 
-        while(strRepeat.equals("yes")){
+        while(boolRepeat == true){
 			//repeatedly gets x, y, and click of mouse
 			intMouseX = con.currentMouseX();
 			intMouseY = con.currentMouseY();
@@ -47,7 +49,8 @@ public class ReviewProject{
 				con.drawString("PLAY",370,165);
                 
                 if(intMouseClick == 1){
-                    strRepeat = "no";
+                    boolRepeat = false;
+                    Play1(con);
 
                     return("play");
                 }
@@ -59,7 +62,7 @@ public class ReviewProject{
 				con.drawString("MAP",380,385);
                 
                 if(intMouseClick == 1){
-                    strRepeat = "no";
+                    boolRepeat = false;
                     
                     return("map");
                 }
@@ -71,7 +74,7 @@ public class ReviewProject{
 				con.drawString("QUIT",370,605);
 				
 				if(intMouseClick == 1){
-					strRepeat = "no";
+                    boolRepeat = false;
 					//if button is clicked
 					con.closeConsole();
 				}
@@ -91,7 +94,6 @@ public class ReviewProject{
 				con.repaint();
             }
         }
-
         return ("hi");
     }
     
@@ -106,25 +108,60 @@ public class ReviewProject{
         //array
         String strMap[][];
         strMap = new String[20][20];
+        strSplit = new String[20];
         //csv file
-        TextInputFile txtMap = new TextInputFile("map.csv");
+        TextInputFile txtMap = new TextInputFile("map2.csv");
         
+        //loading map
         for(intCountRow = 0; intCountRow < 20; intCountRow++){
             strLine = txtMap.readLine();
             strSplit = strLine.split(",");
 
             for(intCountCol = 0; intCountCol < 20; intCountCol++){
                 strMap[intCountRow][intCountCol] = strSplit[intCountCol];
-                drawMap(con,intCountCol,intCountRow,strMap);
             }
         }
-        con.println("woohoo game");
-    }
+        //drawing map
+        drawMap(con, intCountCol, intCountRow, strMap);
 
-    //map loading
+        //adding hero
+        BufferedImage imgHero = con.loadImage("hero.png");
+        //variables
+        int intX = 0;
+        int intY = 0;
+        char chrKey;
+
+        con.drawImage(imgHero,intY,intX);
+        con.repaint();
+
+        while(true){
+            chrKey = con.getChar();
+            if(chrKey == 'w' || chrKey == 'a' || chrKey == 's' || chrKey == 'd'){
+                if(chrKey == 'w'){
+                    intX = intX-40;
+                }else if(chrKey == 'a'){
+                    intY = intY-40;
+                }else if(chrKey == 's'){
+                    intX = intX+40;
+                }else if(chrKey == 'd'){
+                    intY = intY+40;
+                }
+                con.sleep(200);
+                drawMap(con, intCountCol, intCountRow, strMap);
+                con.drawImage(imgHero,intY,intX);
+
+            }
+            
+        }
+
+    }
+    
+
+    //map draw
     public static void drawMap(Console con, int intCountColumns, int intCountRows, String strMap[][]){
         //variables
         String strSquare;
+        //square is null why sob
         int intBlockX = 0;
         int intBlockY = 0;
 
@@ -156,10 +193,10 @@ public class ReviewProject{
                 }else if(strSquare.equals("e3")){
                     con.drawImage(imgEnemy3, intBlockX, intBlockY);
                 }
-                intBlockX += 30;
+                intBlockX += 40;
             }
             intBlockX = 0;
-            intBlockY += 30;
+            intBlockY += 40;
         }
         con.repaint();
     }
