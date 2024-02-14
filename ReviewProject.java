@@ -5,15 +5,11 @@ import java.awt.Color;
 
 //Michelle Zhang
 //Gr 11 Review Project
-//Version 10
+//Version 11
 
 public class ReviewProject{
     public static void main(String[] args){
         Console con = new Console("RPG Game",800,800);
-        //font
-		//Font fntVera = con.loadFont("VeraMono.ttf",20);
-		//con.setDrawFont(fntVera);
-		//con.setTextFont(fntVera);
         //variables
         String strMapChoice = "map.csv";
         String strChoice;
@@ -35,9 +31,8 @@ public class ReviewProject{
 		int intMouseX = 0;
 		int intMouseY = 0;
 		int intMouseClick = 0;
-		boolean boolRepeat = true;
 
-        while(boolRepeat == true){
+        while(true){
 			//repeatedly gets x, y, and click of mouse
 			intMouseX = con.currentMouseX();
 			intMouseY = con.currentMouseY();
@@ -49,12 +44,10 @@ public class ReviewProject{
 				con.drawString("PLAY",370,165);
                 
                 if(intMouseClick == 1){
-                    boolRepeat = false;
                     Play1(con);
 
                     return("play");
                 }
-
 				con.repaint();
 			}else if(((intMouseX >= 250) && (intMouseX <= 550)) && ((intMouseY >= 360) && (intMouseY <= 360+80))){
 				//map button
@@ -62,11 +55,8 @@ public class ReviewProject{
 				con.drawString("MAP",380,385);
                 
                 if(intMouseClick == 1){
-                    boolRepeat = false;
-                    
                     return("map");
                 }
-
                 con.repaint();
 			}else if(((intMouseX >= 250) && (intMouseX <= 550)) && ((intMouseY >= 580) && (intMouseY <= 580+80))){
 				//quit button
@@ -74,8 +64,7 @@ public class ReviewProject{
 				con.drawString("QUIT",370,605);
 				
 				if(intMouseClick == 1){
-                    boolRepeat = false;
-					//if button is clicked
+                    //if button is clicked
 					con.closeConsole();
 				}
 				con.repaint();
@@ -94,7 +83,6 @@ public class ReviewProject{
 				con.repaint();
             }
         }
-        return ("hi");
     }
     
     //play option
@@ -105,6 +93,18 @@ public class ReviewProject{
         int intCountRow = 0;
         int intCountCol = 0;
         String strSplit[];
+        int intX = 0;
+        int intY = 0;
+        char chrKey;
+        int intHealth = 50;
+        int intDmg = 10;
+        int intDefense = 10;
+        boolean blnHUD = false;
+        boolean blnRepeat = true;
+        int intPlayerRX;
+        int intPlayerRY;
+        String strNextBlock = "";
+
         //array
         String strMap[][];
         strMap = new String[20][20];
@@ -126,36 +126,94 @@ public class ReviewProject{
 
         //adding hero
         BufferedImage imgHero = con.loadImage("hero.png");
-        //variables
-        int intX = 0;
-        int intY = 0;
-        char chrKey;
 
-        con.drawImage(imgHero,intY,intX);
+        con.drawImage(imgHero,intX,intY);
         con.repaint();
 
-        while(true){
+
+        while(blnRepeat){
             chrKey = con.getChar();
+
             if(chrKey == 'w' || chrKey == 'a' || chrKey == 's' || chrKey == 'd'){
                 if(chrKey == 'w'){
-                    intX = intX-40;
+                    intPlayerRY = intY-40;
+
+                    if(intPlayerRY >= 0){
+                        strNextBlock = strMap[intPlayerRY/40][intX/40];
+                        intY = playerMovement(con, strNextBlock, chrKey, intY);
+                    }
                 }else if(chrKey == 'a'){
-                    intY = intY-40;
+                    intPlayerRX = intX-40;
+
+                    if(intPlayerRX >= 0){
+                        strNextBlock = strMap[intY/40][intPlayerRX/40];
+                        intX = playerMovement(con, strNextBlock, chrKey, intX);
+                    }
+                    
                 }else if(chrKey == 's'){
-                    intX = intX+40;
+                    intPlayerRY= intY+40;
+                    
+                    if(intPlayerRY < 800){
+                        strNextBlock = strMap[intPlayerRY/40][intX/40];
+                        intY = playerMovement(con, strNextBlock, chrKey, intY);
+                    }
                 }else if(chrKey == 'd'){
-                    intY = intY+40;
+                    intPlayerRX = intX+40;
+
+                    if(intPlayerRX < 800){
+                        strNextBlock = strMap[intY/40][intPlayerRX/40];
+                        intX = playerMovement(con, strNextBlock, chrKey, intX);
+                    }
                 }
                 con.sleep(200);
                 drawMap(con, intCountCol, intCountRow, strMap);
-                con.drawImage(imgHero,intY,intX);
-
+                con.drawImage(imgHero,intX,intY);
+            }else if(chrKey == 'h'){
+                blnHUD = HUD(con, intHealth, intDmg, intDefense, blnHUD, intCountCol, intCountRow, imgHero, intX, intY, strMap);
             }
             
         }
 
     }
     
+    public static int playerMovement(Console con, String strNextBlock, char chrKey, int intPlayerMovement){
+        if(strNextBlock.equals("w")){
+            //Water code
+        }else if(strNextBlock.equals("b")){
+            //Health code
+        }else if(strNextBlock.equals("e1")){
+            //Enemy code
+        }
+
+        if(!strNextBlock.equals("t")){
+            if(chrKey == 'w' || chrKey == 'a'){
+                intPlayerMovement -= 40;
+            }else if(chrKey == 's' || chrKey == 'd'){
+                intPlayerMovement += 40;
+            }
+        }
+
+        return intPlayerMovement;
+    }
+
+    //hud
+    public static boolean HUD(Console con, int intH, int intDmg, int intD,boolean blnHUD, int intCountCol, int intCountRow, BufferedImage imgHero, int intX, int intY, String strMap[][]){
+        if(blnHUD == true){
+            con.setDrawColor(Color.BLACK);
+            con.fillRect(0, 0, 800, 100);
+            con.println("Health:  "+intH);
+            con.println("Damage:  "+intDmg);
+            con.println("Defense: "+intD);
+            return false;
+        }else{
+            blnHUD = false;
+            Clear(con);
+            drawMap(con, intCountCol, intCountRow, strMap);
+            con.drawImage(imgHero,intY,intX);
+            return true;
+        }
+        
+    }
 
     //map draw
     public static void drawMap(Console con, int intCountColumns, int intCountRows, String strMap[][]){
@@ -266,5 +324,4 @@ public class ReviewProject{
 		con.fillRect(0,0,1280,720);
 		con.clear();
 	}
-
 }
