@@ -1,30 +1,32 @@
 import arc.*;
 import java.awt.image.BufferedImage;
 import java.awt.Color;
-//import java.awt.Font;
 
 //Michelle Zhang
 //Gr 11 Review Project
-//Version 11
+//Version 12
 
 public class ReviewProject{
+    //variables that can be used through whole class
+    private static boolean blnRepeat = true;
+    private static int intHealth = 50;
+
     public static void main(String[] args){
         Console con = new Console("RPG Game",800,800);
         //variables
-        String strMapChoice = "map.csv";
         String strChoice;
         strChoice = Menu(con);
         Clear(con);
+
         if(strChoice.equals("map")){
-            strMapChoice = Map(con);
+            Map(con);
             Clear(con);
             //con.println(strMapChoice);
-        }else if((strChoice.equals("play")) && (strMapChoice.equals("map.csv"))){
-            Play1(con);
-        }else if((strChoice.equals("play")) && (strMapChoice.equals("map2.csv"))){
-            //Play2(con);
+        }else if(strChoice.equals("play")){
+            Play(con);
         }
     }
+
     //game menu
     public static String Menu(Console con){
         //variables for buttons
@@ -44,8 +46,7 @@ public class ReviewProject{
 				con.drawString("PLAY",370,165);
                 
                 if(intMouseClick == 1){
-                    Play1(con);
-
+                    //Play(con);
                     return("play");
                 }
 				con.repaint();
@@ -86,35 +87,34 @@ public class ReviewProject{
     }
     
     //play option
-    public static void Play1(Console con){
+    public static void Play(Console con){
         Clear(con);
         //variables
         String strLine;
+        String strSplit[];
+        String strNextBlock = "";
         int intCountRow = 0;
         int intCountCol = 0;
-        String strSplit[];
         int intX = 0;
         int intY = 0;
-        char chrKey;
-        int intHealth = 50;
         int intDmg = 10;
         int intDefense = 10;
-        boolean blnHUD = false;
-        boolean blnRepeat = true;
         int intPlayerRX;
         int intPlayerRY;
-        String strNextBlock = "";
+        char chrKey;
+        boolean blnHUD = false;
 
         //array
         String strMap[][];
         strMap = new String[20][20];
         strSplit = new String[20];
+
         //csv file
-        TextInputFile txtMap = new TextInputFile("map2.csv");
+        TextInputFile fileMap = new TextInputFile("map2.csv");
         
         //loading map
         for(intCountRow = 0; intCountRow < 20; intCountRow++){
-            strLine = txtMap.readLine();
+            strLine = fileMap.readLine();
             strSplit = strLine.split(",");
 
             for(intCountCol = 0; intCountCol < 20; intCountCol++){
@@ -126,15 +126,15 @@ public class ReviewProject{
 
         //adding hero
         BufferedImage imgHero = con.loadImage("hero.png");
-
         con.drawImage(imgHero,intX,intY);
-        con.repaint();
-
 
         while(blnRepeat){
-            chrKey = con.getChar();
-
-            if(chrKey == 'w' || chrKey == 'a' || chrKey == 's' || chrKey == 'd'){
+            chrKey = con.currentChar();
+            drawMap(con, intCountCol, intCountRow, strMap);
+            con.drawImage(imgHero,intX,intY);
+            if(chrKey == 'h'){
+                blnHUD = HUD(con, intHealth, intDmg, intDefense, blnHUD, intCountCol, intCountRow, imgHero, intX, intY, strMap);
+            }else if(chrKey == 'w' || chrKey == 'a' || chrKey == 's' || chrKey == 'd'){
                 if(chrKey == 'w'){
                     intPlayerRY = intY-40;
 
@@ -166,10 +166,10 @@ public class ReviewProject{
                     }
                 }
                 con.sleep(200);
-                drawMap(con, intCountCol, intCountRow, strMap);
-                con.drawImage(imgHero,intX,intY);
-            }else if(chrKey == 'h'){
-                blnHUD = HUD(con, intHealth, intDmg, intDefense, blnHUD, intCountCol, intCountRow, imgHero, intX, intY, strMap);
+            }
+
+            if(intHealth <= 0){
+                Death(con);
             }
             
         }
@@ -179,10 +179,21 @@ public class ReviewProject{
     public static int playerMovement(Console con, String strNextBlock, char chrKey, int intPlayerMovement){
         if(strNextBlock.equals("w")){
             //Water code
+            intHealth = 0;
+            Death(con);
+            
         }else if(strNextBlock.equals("b")){
-            //Health code
+            //health code
+            intHealth += 10;
         }else if(strNextBlock.equals("e1")){
-            //Enemy code
+            //enemy 1 code
+            intHealth -= 10;
+        }else if(strNextBlock.equals("e2")){
+            //enemny 2 code
+            intHealth -= 20;
+        }else if(strNextBlock.equals("e3")){
+            //enemy 3 code
+            intHealth -= 30;
         }
 
         if(!strNextBlock.equals("t")){
@@ -194,6 +205,18 @@ public class ReviewProject{
         }
 
         return intPlayerMovement;
+    }
+
+    //dying screen
+    public static void Death(Console con){
+        blnRepeat = false;
+
+        Clear(con);
+
+        BufferedImage imgDead = con.loadImage("dead.png");
+        con.drawImage(imgDead, 0, 0);
+
+        con.repaint();
     }
 
     //hud
@@ -209,7 +232,7 @@ public class ReviewProject{
             blnHUD = false;
             Clear(con);
             drawMap(con, intCountCol, intCountRow, strMap);
-            con.drawImage(imgHero,intY,intX);
+            con.drawImage(imgHero,intX,intY);
             return true;
         }
         
