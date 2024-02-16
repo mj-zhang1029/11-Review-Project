@@ -130,48 +130,52 @@ public class ReviewProject{
 
         while(blnRepeat){
             chrKey = con.currentChar();
-            drawMap(con, intCountCol, intCountRow, strMap);
-            con.drawImage(imgHero,intX,intY);
+            
             if(chrKey == 'h'){
                 blnHUD = HUD(con, intHealth, intDmg, intDefense, blnHUD, intCountCol, intCountRow, imgHero, intX, intY, strMap);
-            }else if(chrKey == 'w' || chrKey == 'a' || chrKey == 's' || chrKey == 'd'){
-                if(chrKey == 'w'){
-                    intPlayerRY = intY-40;
-
-                    if(intPlayerRY >= 0){
-                        strNextBlock = strMap[intPlayerRY/40][intX/40];
-                        intY = playerMovement(con, strNextBlock, chrKey, intY);
-                    }
-                }else if(chrKey == 'a'){
-                    intPlayerRX = intX-40;
-
-                    if(intPlayerRX >= 0){
-                        strNextBlock = strMap[intY/40][intPlayerRX/40];
-                        intX = playerMovement(con, strNextBlock, chrKey, intX);
-                    }
-                    
-                }else if(chrKey == 's'){
-                    intPlayerRY= intY+40;
-                    
-                    if(intPlayerRY < 800){
-                        strNextBlock = strMap[intPlayerRY/40][intX/40];
-                        intY = playerMovement(con, strNextBlock, chrKey, intY);
-                    }
-                }else if(chrKey == 'd'){
-                    intPlayerRX = intX+40;
-
-                    if(intPlayerRX < 800){
-                        strNextBlock = strMap[intY/40][intPlayerRX/40];
-                        intX = playerMovement(con, strNextBlock, chrKey, intX);
-                    }
-                }
                 con.sleep(200);
+            }
+            if(blnHUD == false){
+                drawMap(con, intCountCol, intCountRow, strMap);
+                con.drawImage(imgHero,intX,intY);
+                if(chrKey == 'w' || chrKey == 'a' || chrKey == 's' || chrKey == 'd'){
+                    if(chrKey == 'w'){
+                        intPlayerRY = intY-40;
+
+                        if(intPlayerRY >= 0){
+                            strNextBlock = strMap[intPlayerRY/40][intX/40];
+                            intY = playerMovement(con, strNextBlock, chrKey, intY);
+                        }
+                    }else if(chrKey == 'a'){
+                        intPlayerRX = intX-40;
+
+                        if(intPlayerRX >= 0){
+                            strNextBlock = strMap[intY/40][intPlayerRX/40];
+                            intX = playerMovement(con, strNextBlock, chrKey, intX);
+                        }
+                        
+                    }else if(chrKey == 's'){
+                        intPlayerRY= intY+40;
+                        
+                        if(intPlayerRY < 800){
+                            strNextBlock = strMap[intPlayerRY/40][intX/40];
+                            intY = playerMovement(con, strNextBlock, chrKey, intY);
+                        }
+                    }else if(chrKey == 'd'){
+                        intPlayerRX = intX+40;
+
+                        if(intPlayerRX < 800){
+                            strNextBlock = strMap[intY/40][intPlayerRX/40];
+                            intX = playerMovement(con, strNextBlock, chrKey, intX);
+                        }
+                    }
+                    con.sleep(200);
+                }
             }
 
             if(intHealth <= 0){
                 Death(con);
             }
-            
         }
 
     }
@@ -211,8 +215,6 @@ public class ReviewProject{
     public static void Death(Console con){
         blnRepeat = false;
 
-        Clear(con);
-
         BufferedImage imgDead = con.loadImage("dead.png");
         con.drawImage(imgDead, 0, 0);
 
@@ -221,19 +223,19 @@ public class ReviewProject{
 
     //hud
     public static boolean HUD(Console con, int intH, int intDmg, int intD,boolean blnHUD, int intCountCol, int intCountRow, BufferedImage imgHero, int intX, int intY, String strMap[][]){
-        if(blnHUD == true){
+        if(blnHUD == false){
             con.setDrawColor(Color.BLACK);
             con.fillRect(0, 0, 800, 100);
             con.println("Health:  "+intH);
             con.println("Damage:  "+intDmg);
             con.println("Defense: "+intD);
-            return false;
+            con.repaint();
+            return true;
         }else{
-            blnHUD = false;
             Clear(con);
             drawMap(con, intCountCol, intCountRow, strMap);
             con.drawImage(imgHero,intX,intY);
-            return true;
+            return false;
         }
         
     }
