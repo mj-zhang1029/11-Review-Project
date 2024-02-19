@@ -15,15 +15,16 @@ public class ReviewProject{
         Console con = new Console("RPG Game",800,800);
         //variables
         String strChoice;
+        int intMapChoice;
         strChoice = Menu(con);
         Clear(con);
 
-        if(strChoice.equals("map")){
-            Map(con);
+        if(strChoice.equals("help")){
             Clear(con);
-            //con.println(strMapChoice);
+            con.println("help");
         }else if(strChoice.equals("play")){
-            Play(con);
+            intMapChoice = Map(con);
+            Play(con, intMapChoice);
         }
     }
 
@@ -53,10 +54,10 @@ public class ReviewProject{
 			}else if(((intMouseX >= 250) && (intMouseX <= 550)) && ((intMouseY >= 360) && (intMouseY <= 360+80))){
 				//map button
 				con.setDrawColor(Color.RED);
-				con.drawString("MAP",380,385);
+				con.drawString("HELP",370,385);
                 
                 if(intMouseClick == 1){
-                    return("map");
+                    return("help");
                 }
                 con.repaint();
 			}else if(((intMouseX >= 250) && (intMouseX <= 550)) && ((intMouseY >= 580) && (intMouseY <= 580+80))){
@@ -78,7 +79,7 @@ public class ReviewProject{
 				
 				con.setDrawColor(Color.RED);
 				con.drawString("PLAY",370,165);
-				con.drawString("MAP",380,385);
+				con.drawString("HELP",370,385);
 				con.drawString("QUIT",370,605);
 								
 				con.repaint();
@@ -87,7 +88,7 @@ public class ReviewProject{
     }
     
     //play option
-    public static void Play(Console con){
+    public static void Play(Console con, int intMapChoice){
         Clear(con);
         //variables
         String strLine;
@@ -110,7 +111,10 @@ public class ReviewProject{
         strSplit = new String[20];
 
         //csv file
-        TextInputFile fileMap = new TextInputFile("map2.csv");
+        TextInputFile fileMap = new TextInputFile("map.csv");
+        if(intMapChoice == 2){
+            fileMap = new TextInputFile("map2.csv");
+        }
         
         //loading map
         for(intCountRow = 0; intCountRow < 20; intCountRow++){
@@ -133,7 +137,7 @@ public class ReviewProject{
             
             if(chrKey == 'h'){
                 blnHUD = HUD(con, intHealth, intDmg, intDefense, blnHUD, intCountCol, intCountRow, imgHero, intX, intY, strMap);
-                con.sleep(200);
+                con.sleep(100);
             }
             if(blnHUD == false){
                 drawMap(con, intCountCol, intCountRow, strMap);
@@ -180,6 +184,98 @@ public class ReviewProject{
 
     }
     
+    //battle animations
+    public static void Enemy(Console con, String strE){
+        blnRepeat = false;
+        Clear(con);
+
+        //variables
+        //boolean blnBattle = true;
+        int intEHealth = 50;
+        int intRun;
+        int intMouseX = 0;
+		int intMouseY = 0;
+		int intMouseClick = 0;
+
+        BufferedImage imgB = con.loadImage("battle.png");
+        con.drawImage(imgB,0,0);
+        BufferedImage imgH = con.loadImage("bhero.png");
+        con.drawImage(imgH,0,250);
+        con.drawString("Hero:", 10, 220);
+        con.drawString("HP:"+intHealth, 10, 240);
+
+        if(strE.equals("Ghost")){
+            BufferedImage imgE = con.loadImage("benemy1.png");
+            con.drawImage(imgE,450,20);
+            con.drawString("Ghost:", 425, 0);
+            con.drawString("HP:"+intEHealth, 425, 20);
+        }else if(strE.equals("Alien")){
+            BufferedImage imgE = con.loadImage("benemy2.png");
+            con.drawImage(imgE,450,20);
+            con.drawString("Alien:", 415, 0);
+            con.drawString("HP:"+intEHealth, 415, 20);
+        }else if(strE.equals("Bear")){
+            BufferedImage imgE = con.loadImage("benemy3.png");
+            con.drawImage(imgE,450,20);
+            con.drawString("Bear:", 425, 0);
+            con.drawString("HP:"+intEHealth, 425, 20);
+        }
+
+        while(true){
+            intMouseX = con.currentMouseX();
+			intMouseY = con.currentMouseY();
+			intMouseClick = con.currentMouseButton();
+
+            if(((intMouseX >= 50) && (intMouseX <= 375)) && ((intMouseY >= 650) && (intMouseY <= 750))){
+				con.setDrawColor(Color.WHITE);
+				con.drawString("FIGHT",180,690);
+
+				if(intMouseClick == 1){
+                    //if button is clicked
+                    //blnBattle = false;
+                    Clear(con);
+
+                    con.repaint();
+				}
+				con.repaint();
+			}else if(((intMouseX >= 435) && (intMouseX <= 760)) && ((intMouseY >= 650) && (intMouseY <= 750))){
+                con.setDrawColor(Color.WHITE);
+				con.drawString("RUN",575,690);
+
+				if(intMouseClick == 1){
+                    //if button is clicked
+                    //blnBattle = false;
+                    Clear(con);
+                    intRun = (int)(Math.random()*100+1);
+
+                    if((intRun%2) == 0){
+                        //leave fight successfully
+                        //blnBattle = true;
+                    }else{
+                        //cannot leave fight
+                    }
+
+                    con.repaint();
+				}
+				con.repaint();
+            }else{
+				//redraws buttons, words, and outline if user is not hovering button
+				con.setDrawColor(Color.RED);
+				con.fillRect(50, 650, 325, 100);
+				con.fillRect(435, 650, 325, 100);
+				
+				con.setDrawColor(Color.WHITE);
+				con.drawString("FIGHT",180,690);
+				con.drawString("RUN",575,690);
+								
+				con.repaint();
+            }
+
+        }
+
+    }
+
+    //block logics (tree, water, enemies)
     public static int playerMovement(Console con, String strNextBlock, char chrKey, int intPlayerMovement){
         if(strNextBlock.equals("w")){
             //Water code
@@ -191,13 +287,16 @@ public class ReviewProject{
             intHealth += 10;
         }else if(strNextBlock.equals("e1")){
             //enemy 1 code
-            intHealth -= 10;
+            //intHealth -= 10;
+            Enemy(con, "Ghost");
         }else if(strNextBlock.equals("e2")){
             //enemny 2 code
-            intHealth -= 20;
+            //intHealth -= 20;
+            Enemy(con, "Alien");
         }else if(strNextBlock.equals("e3")){
             //enemy 3 code
-            intHealth -= 30;
+            //intHealth -= 30;
+            Enemy(con, "Bear");
         }
 
         if(!strNextBlock.equals("t")){
@@ -285,7 +384,7 @@ public class ReviewProject{
     }
 
     //map selection
-    public static String Map(Console con){
+    public static int Map(Console con){
         //variables for buttons
 		int intMouseX = 0;
 		int intMouseY = 0;
@@ -311,7 +410,7 @@ public class ReviewProject{
                 if(intMouseClick == 1){
                     strRepeat = "no";
 
-                    return("map.csv");
+                    return 1;
                 }
 
 				con.repaint();
@@ -323,7 +422,7 @@ public class ReviewProject{
                 if(intMouseClick == 1){                    
                     strRepeat = "no";
 
-                    return("map2.csv");
+                    return 2;
                 }
 
                 con.repaint();
@@ -339,14 +438,14 @@ public class ReviewProject{
 				con.repaint();
             }
         }
-        return("map.csv");
+        return 1;
     }
 
     //clears screen
 	public static void Clear(Console con){
 		con.sleep(500);
 		con.setDrawColor(Color.BLACK);
-		con.fillRect(0,0,1280,720);
+		con.fillRect(0,0,800,800);
 		con.clear();
 	}
 }
