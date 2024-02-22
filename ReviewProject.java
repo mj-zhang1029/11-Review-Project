@@ -10,12 +10,16 @@ public class ReviewProject{
     //variables that can be used through whole class
     private static boolean blnRepeat = true;
     private static int intHealth = 50;
+    private static int intMapChoice;
+    private static int intX = 0;
+    private static int intY = 0;
+    private static int intDmg = 10;
+    private static int intDefense = 10;
 
     public static void main(String[] args){
         Console con = new Console("RPG Game",800,800);
         //variables
         String strChoice;
-        int intMapChoice;
         strChoice = Menu(con);
         Clear(con);
 
@@ -24,7 +28,7 @@ public class ReviewProject{
             con.println("help");
         }else if(strChoice.equals("play")){
             intMapChoice = Map(con);
-            Play(con, intMapChoice);
+            Play(con);
         }
     }
 
@@ -88,7 +92,7 @@ public class ReviewProject{
     }
     
     //play option
-    public static void Play(Console con, int intMapChoice){
+    public static void Play(Console con){
         Clear(con);
         //variables
         String strLine;
@@ -96,10 +100,6 @@ public class ReviewProject{
         String strNextBlock = "";
         int intCountRow = 0;
         int intCountCol = 0;
-        int intX = 0;
-        int intY = 0;
-        int intDmg = 10;
-        int intDefense = 10;
         int intPlayerRX;
         int intPlayerRY;
         char chrKey;
@@ -136,7 +136,7 @@ public class ReviewProject{
             chrKey = con.currentChar();
             
             if(chrKey == 'h'){
-                blnHUD = HUD(con, intHealth, intDmg, intDefense, blnHUD, intCountCol, intCountRow, imgHero, intX, intY, strMap);
+                blnHUD = HUD(con, intHealth, intDmg, intDefense, blnHUD, intCountCol, intCountRow, imgHero, strMap);
                 con.sleep(100);
             }
             if(blnHUD == false){
@@ -190,41 +190,20 @@ public class ReviewProject{
         Clear(con);
 
         //variables
-        //boolean blnBattle = true;
         int intEHealth = 50;
         int intRun;
         int intMouseX = 0;
 		int intMouseY = 0;
 		int intMouseClick = 0;
+        boolean blnFight = false;
 
-        BufferedImage imgB = con.loadImage("battle.png");
-        con.drawImage(imgB,0,0);
-        BufferedImage imgH = con.loadImage("bhero.png");
-        con.drawImage(imgH,0,250);
-        con.drawString("Hero:", 10, 220);
-        con.drawString("HP:"+intHealth, 10, 240);
+        BattleBkg(con, strE, intEHealth);
 
-        if(strE.equals("Ghost")){
-            BufferedImage imgE = con.loadImage("benemy1.png");
-            con.drawImage(imgE,450,20);
-            con.drawString("Ghost:", 425, 0);
-            con.drawString("HP:"+intEHealth, 425, 20);
-        }else if(strE.equals("Alien")){
-            BufferedImage imgE = con.loadImage("benemy2.png");
-            con.drawImage(imgE,450,20);
-            con.drawString("Alien:", 415, 0);
-            con.drawString("HP:"+intEHealth, 415, 20);
-        }else if(strE.equals("Bear")){
-            BufferedImage imgE = con.loadImage("benemy3.png");
-            con.drawImage(imgE,450,20);
-            con.drawString("Bear:", 425, 0);
-            con.drawString("HP:"+intEHealth, 425, 20);
-        }
-
-        while(true){
+        while((intHealth > 0) && (intEHealth > 0)){
             intMouseX = con.currentMouseX();
 			intMouseY = con.currentMouseY();
 			intMouseClick = con.currentMouseButton();
+            con.sleep(100);
 
             if(((intMouseX >= 50) && (intMouseX <= 375)) && ((intMouseY >= 650) && (intMouseY <= 750))){
 				con.setDrawColor(Color.WHITE);
@@ -232,30 +211,29 @@ public class ReviewProject{
 
 				if(intMouseClick == 1){
                     //if button is clicked
-                    //blnBattle = false;
                     Clear(con);
-
-                    con.repaint();
+                    blnFight = true;
+                    Fight(con, strE, intEHealth, blnFight);
 				}
-				con.repaint();
+                con.repaint();
 			}else if(((intMouseX >= 435) && (intMouseX <= 760)) && ((intMouseY >= 650) && (intMouseY <= 750))){
                 con.setDrawColor(Color.WHITE);
-				con.drawString("RUN",575,690);
+				con.drawString("FLIGHT",565,690);
 
 				if(intMouseClick == 1){
                     //if button is clicked
-                    //blnBattle = false;
-                    Clear(con);
                     intRun = (int)(Math.random()*100+1);
 
                     if((intRun%2) == 0){
                         //leave fight successfully
-                        //blnBattle = true;
+                        blnRepeat = true;
+                        Play(con);
                     }else{
-                        //cannot leave fight
+                        intHealth -= 10;
+                        BattleBkg(con, strE, intEHealth);
+                        con.drawString("Unable to run away", 10, 610);
                     }
 
-                    con.repaint();
 				}
 				con.repaint();
             }else{
@@ -266,13 +244,134 @@ public class ReviewProject{
 				
 				con.setDrawColor(Color.WHITE);
 				con.drawString("FIGHT",180,690);
-				con.drawString("RUN",575,690);
+				con.drawString("FLIGHT",565,690);
 								
 				con.repaint();
             }
-
         }
+    }
 
+    //fight option for battle
+    public static void Fight(Console con, String strE, int intEHealth, boolean blnFight){
+        Clear(con);
+        BattleBkg(con, strE, intEHealth);
+        //variables
+        int intMouseX = 0;
+		int intMouseY = 0;
+		int intMouseClick = 0;
+        int intRabbit;
+
+        while((blnFight = true) && (intEHealth > 0) && (intHealth > 0)){
+            intMouseX = con.currentMouseX();
+			intMouseY = con.currentMouseY();
+			intMouseClick = con.currentMouseButton();
+
+            if(((intMouseX >= 50) && (intMouseX <= 375)) && ((intMouseY >= 650) && (intMouseY <= 750))){
+                con.setDrawColor(Color.WHITE);
+				con.drawString("POKE",185,690);
+
+                if(intMouseClick == 1){
+                    //animate hand moving in and out to poke
+                    intEHealth -= EDmg(strE);
+                    intHealth -= HDmg(strE);
+                    BattleBkg(con, strE, intEHealth);
+                }
+                con.repaint();
+            }else if(((intMouseX >= 435) && (intMouseX <= 760)) && ((intMouseY >= 650) && (intMouseY <= 750))){
+                con.setDrawColor(Color.WHITE);
+				con.drawString("MAGIC",570,690);
+
+                if(intMouseClick == 1){
+                    //25% chance of turning enemy into rabbit
+                    intRabbit = (int)(Math.random()*4+1);
+                    if(intRabbit == 1){
+                        //leave fight successfully
+                        strE = "Rabbit";
+                        intEHealth -= EDmg(strE);
+                        intHealth -= HDmg(strE);
+                        BattleBkg(con, strE, intEHealth);
+                    }else{
+                        intHealth -= HDmg(strE);
+                        BattleBkg(con, strE, intEHealth);
+                        con.drawString("Magic failed", 10, 610);
+                    }
+                }
+                con.repaint();
+            }else{
+                con.setDrawColor(Color.RED);
+				con.fillRect(50, 650, 325, 100);
+				con.fillRect(435, 650, 325, 100);
+				
+				con.setDrawColor(Color.WHITE);
+				con.drawString("POKE",185,690);
+				con.drawString("MAGIC",570,690);
+								
+				con.repaint();
+            }
+        }
+        if(intHealth > 0){
+            blnRepeat = true;
+            Play(con);
+        }
+    }
+
+    //dmg calculators
+    public static int EDmg(String strE){
+        if(strE.equals("Ghost")){
+            return ((int)(intDmg*1.3));
+        }else if(strE.equals("Alien")){
+            return ((int)(intDmg*1.2));
+        }else if(strE.equals("Bear")){
+            return (intDmg);
+        }else if(strE.equals("Rabbit")){
+            return ((int)(intDmg*1.5));
+        }
+        return(intDmg);
+    }
+    public static int HDmg(String strE){
+        int intHurt = 10;
+        int intShields = intDefense/10;
+
+        if(strE.equals("Ghost")){
+            intHurt = intShields*3;
+        }else if(strE.equals("Alien")){
+            intHurt = intShields*2;
+        }else if(strE.equals("Bear")){
+            intHurt = intShields;
+        }else if(strE.equals("Rabbit")){
+            intHurt = intShields*4;
+        }
+        return(intHurt-intShields);
+    }
+
+    //battle bkg
+    public static void BattleBkg(Console con, String strE, int intEHealth){
+        Clear(con);
+        con.setDrawColor(Color.BLACK);
+        BufferedImage imgB = con.loadImage("battle.png");
+        con.drawImage(imgB,0,0);
+        BufferedImage imgH = con.loadImage("bhero.png");
+        con.drawImage(imgH,0,250);
+        con.drawString("Hero:", 10, 220);
+        con.drawString("HP:"+intHealth, 10, 240);
+
+        con.drawString(strE+":", 415, 0);
+        con.drawString("HP:"+intEHealth, 415, 20);
+
+        if(strE.equals("Ghost")){
+            BufferedImage imgE = con.loadImage("benemy1.png");
+            con.drawImage(imgE,450,20);
+        }else if(strE.equals("Alien")){
+            BufferedImage imgE = con.loadImage("benemy2.png");
+            con.drawImage(imgE,450,20);
+
+        }else if(strE.equals("Bear")){
+            BufferedImage imgE = con.loadImage("benemy3.png");
+            con.drawImage(imgE,450,20);
+        }else if(strE.equals("Rabbit")){
+            BufferedImage imgE = con.loadImage("rabbit.png");
+            con.drawImage(imgE,450,20);
+        }
     }
 
     //block logics (tree, water, enemies)
@@ -281,21 +380,17 @@ public class ReviewProject{
             //Water code
             intHealth = 0;
             Death(con);
-            
         }else if(strNextBlock.equals("b")){
             //health code
             intHealth += 10;
         }else if(strNextBlock.equals("e1")){
             //enemy 1 code
-            //intHealth -= 10;
             Enemy(con, "Ghost");
         }else if(strNextBlock.equals("e2")){
             //enemny 2 code
-            //intHealth -= 20;
             Enemy(con, "Alien");
         }else if(strNextBlock.equals("e3")){
             //enemy 3 code
-            //intHealth -= 30;
             Enemy(con, "Bear");
         }
 
@@ -313,7 +408,7 @@ public class ReviewProject{
     //dying screen
     public static void Death(Console con){
         blnRepeat = false;
-
+        Clear(con);
         BufferedImage imgDead = con.loadImage("dead.png");
         con.drawImage(imgDead, 0, 0);
 
@@ -321,7 +416,7 @@ public class ReviewProject{
     }
 
     //hud
-    public static boolean HUD(Console con, int intH, int intDmg, int intD,boolean blnHUD, int intCountCol, int intCountRow, BufferedImage imgHero, int intX, int intY, String strMap[][]){
+    public static boolean HUD(Console con, int intH, int intDmg, int intD,boolean blnHUD, int intCountCol, int intCountRow, BufferedImage imgHero, String strMap[][]){
         if(blnHUD == false){
             con.setDrawColor(Color.BLACK);
             con.fillRect(0, 0, 800, 100);
