@@ -2,7 +2,7 @@ g,g,g,t,t,w,w,w,w,w,w,w,w,w,w,w,w,w,w,w
 g,g,g,g,t,t,t,w,w,w,w,e2,e2,g,w,w,w,w,w,w
 t,t,g,g,e1,g,t,t,g,g,e2,g,g,e2,g,g,w,w,w,w
 t,t,t,g,g,g,g,g,g,g,g,g,g,g,e2,w,w,w,w,w
-t,t,g,g,e2,g,g,e2,g,g,g,g,g,g,w,w,w,w,w,w
+t,t,g,g,e2,g,g,g,e2,g,g,g,g,g,w,w,w,w,w,w
 t,t,t,b,g,g,g,g,g,g,g,e2,g,g,b,g,w,w,w,w
 t,t,t,t,g,e1,g,g,g,g,g,g,g,g,b,b,g,g,w,w
 t,t,t,g,b,g,g,g,b,t,g,e1,g,g,g,g,g,g,g,w
@@ -11,10 +11,10 @@ t,t,t,t,t,g,g,g,g,b,g,e2,g,g,g,b,w,w,w,w
 t,t,t,t,g,g,e3,g,g,g,g,g,g,g,g,e2,t,w,w,w
 t,t,t,g,g,t,t,g,g,g,g,e1,g,g,g,g,g,w,w,w
 t,g,g,g,t,t,w,w,g,g,g,g,e1,g,g,g,g,t,t,w
-t,g,g,w,w,w,w,w,w,b,g,g,g,g,g,g,g,g,t,t
-t,g,w,w,w,w,w,w,g,b,b,g,g,g,e1,g,g,g,g,g
-t,g,w,w,w,w,w,w,g,g,b,g,g,g,t,g,g,e1,g,g
-t,g,w,w,w,w,w,w,w,g,g,g,g,t,t,t,g,g,g,e1
+t,g,g,w,w,w,w,w,g,b,g,g,g,g,g,g,g,g,t,t
+t,g,w,w,w,w,w,w,w,b,b,g,g,g,e1,g,g,g,g,g
+t,g,w,w,w,w,w,w,w,g,b,g,g,g,t,g,g,e1,g,g
+t,g,w,w,w,w,w,w,w,w,g,g,g,t,t,t,g,g,g,e1
 t,e3,t,w,w,w,w,w,w,w,g,e1,e1,t,t,g,g,g,g,g
 t,e3,e3,t,w,w,w,w,w,w,w,e1,g,g,g,g,e2,e2,g,g
 t,e3,b,e3,t,w,w,w,w,w,b,g,e1,g,g,g,g,g,g,g

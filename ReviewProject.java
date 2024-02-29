@@ -4,32 +4,39 @@ import java.awt.Color;
 
 //Michelle Zhang
 //Gr 11 Review Project
-//Version 12
 
 public class ReviewProject{
     //variables that can be used through whole class
     private static boolean blnRepeat = true;
+    private static boolean blnSword = false;
+    private static boolean blnShield = false;
     private static int intHealth = 50;
     private static int intMapChoice;
     private static int intX = 0;
     private static int intY = 0;
-    private static int intDmg = 10;
-    private static int intDefense = 10;
+    private static int intDmg = 20;
+    private static int intDefense = 20;
 
     public static void main(String[] args){
         Console con = new Console("RPG Game",800,800);
         //variables
         String strChoice;
-        strChoice = Menu(con);
-        Clear(con);
+        boolean blnPlay = false;
 
-        if(strChoice.equals("help")){
-            Clear(con);
-            con.println("help");
-        }else if(strChoice.equals("play")){
-            intMapChoice = Map(con);
-            Play(con);
+        while(blnPlay == false){
+            strChoice = Menu(con);
+            if(strChoice.equals("help")){
+                Help(con);
+            }else{
+                blnPlay = true;
+            }
         }
+
+        con.setDrawColor(Color.BLACK);
+		con.fillRect(0,0,800,800);
+		con.clear();
+        intMapChoice = Map(con);
+        Play(con, intMapChoice);
     }
 
     //game menu
@@ -91,9 +98,25 @@ public class ReviewProject{
         }
     }
     
+    //help option
+    public static void Help(Console con){
+        boolean blnHelpMenuActive = true;
+        int intMouseClick;
+        BufferedImage imgHelp = con.loadImage("help.png");
+
+        while(blnHelpMenuActive == true){
+            intMouseClick = con.currentMouseButton();
+            con.drawImage(imgHelp, 0, 0);
+            con.repaint();
+            if(intMouseClick == 1){
+                con.sleep(100);
+                blnHelpMenuActive = false;
+            }
+        }
+    }
+
     //play option
-    public static void Play(Console con){
-        Clear(con);
+    public static void Play(Console con, int intMapChoice){
         //variables
         String strLine;
         String strSplit[];
@@ -104,18 +127,15 @@ public class ReviewProject{
         int intPlayerRY;
         char chrKey;
         boolean blnHUD = false;
-
         //array
         String strMap[][];
         strMap = new String[20][20];
         strSplit = new String[20];
-
         //csv file
         TextInputFile fileMap = new TextInputFile("map.csv");
         if(intMapChoice == 2){
             fileMap = new TextInputFile("map2.csv");
         }
-        
         //loading map
         for(intCountRow = 0; intCountRow < 20; intCountRow++){
             strLine = fileMap.readLine();
@@ -125,9 +145,10 @@ public class ReviewProject{
                 strMap[intCountRow][intCountCol] = strSplit[intCountCol];
             }
         }
+        //close csv file
+        fileMap.close();
         //drawing map
         drawMap(con, intCountCol, intCountRow, strMap);
-
         //adding hero
         BufferedImage imgHero = con.loadImage("hero.png");
         con.drawImage(imgHero,intX,intY);
@@ -136,7 +157,7 @@ public class ReviewProject{
             chrKey = con.currentChar();
             
             if(chrKey == 'h'){
-                blnHUD = HUD(con, intHealth, intDmg, intDefense, blnHUD, intCountCol, intCountRow, imgHero, strMap);
+                blnHUD = HUD(con, intHealth, intDmg, intDefense, blnHUD, intCountCol, intCountRow, imgHero, strMap, intMapChoice);
                 con.sleep(100);
             }
             if(blnHUD == false){
@@ -148,14 +169,14 @@ public class ReviewProject{
 
                         if(intPlayerRY >= 0){
                             strNextBlock = strMap[intPlayerRY/40][intX/40];
-                            intY = playerMovement(con, strNextBlock, chrKey, intY);
+                            intY = playerMovement(con, strNextBlock, chrKey, intY, intMapChoice);
                         }
                     }else if(chrKey == 'a'){
                         intPlayerRX = intX-40;
 
                         if(intPlayerRX >= 0){
                             strNextBlock = strMap[intY/40][intPlayerRX/40];
-                            intX = playerMovement(con, strNextBlock, chrKey, intX);
+                            intX = playerMovement(con, strNextBlock, chrKey, intX, intMapChoice);
                         }
                         
                     }else if(chrKey == 's'){
@@ -163,14 +184,14 @@ public class ReviewProject{
                         
                         if(intPlayerRY < 800){
                             strNextBlock = strMap[intPlayerRY/40][intX/40];
-                            intY = playerMovement(con, strNextBlock, chrKey, intY);
+                            intY = playerMovement(con, strNextBlock, chrKey, intY, intMapChoice);
                         }
                     }else if(chrKey == 'd'){
                         intPlayerRX = intX+40;
 
                         if(intPlayerRX < 800){
                             strNextBlock = strMap[intY/40][intPlayerRX/40];
-                            intX = playerMovement(con, strNextBlock, chrKey, intX);
+                            intX = playerMovement(con, strNextBlock, chrKey, intX, intMapChoice);
                         }
                     }
                     con.sleep(200);
@@ -185,9 +206,8 @@ public class ReviewProject{
     }
     
     //battle animations
-    public static void Enemy(Console con, String strE){
+    public static void Enemy(Console con, String strE, int intMapChoice){
         blnRepeat = false;
-        Clear(con);
 
         //variables
         int intEHealth = 50;
@@ -199,11 +219,11 @@ public class ReviewProject{
 
         BattleBkg(con, strE, intEHealth);
 
+        //battle will run until player or enemy dies
         while((intHealth > 0) && (intEHealth > 0)){
             intMouseX = con.currentMouseX();
 			intMouseY = con.currentMouseY();
 			intMouseClick = con.currentMouseButton();
-            con.sleep(100);
 
             if(((intMouseX >= 50) && (intMouseX <= 375)) && ((intMouseY >= 650) && (intMouseY <= 750))){
 				con.setDrawColor(Color.WHITE);
@@ -211,9 +231,9 @@ public class ReviewProject{
 
 				if(intMouseClick == 1){
                     //if button is clicked
-                    Clear(con);
                     blnFight = true;
-                    Fight(con, strE, intEHealth, blnFight);
+                    con.sleep(200);
+                    Fight(con, strE, intEHealth, blnFight, intMapChoice);
 				}
                 con.repaint();
 			}else if(((intMouseX >= 435) && (intMouseX <= 760)) && ((intMouseY >= 650) && (intMouseY <= 750))){
@@ -227,13 +247,12 @@ public class ReviewProject{
                     if((intRun%2) == 0){
                         //leave fight successfully
                         blnRepeat = true;
-                        Play(con);
+                        Play(con, intMapChoice);
                     }else{
                         intHealth -= 10;
                         BattleBkg(con, strE, intEHealth);
                         con.drawString("Unable to run away", 10, 610);
                     }
-
 				}
 				con.repaint();
             }else{
@@ -241,7 +260,6 @@ public class ReviewProject{
 				con.setDrawColor(Color.RED);
 				con.fillRect(50, 650, 325, 100);
 				con.fillRect(435, 650, 325, 100);
-				
 				con.setDrawColor(Color.WHITE);
 				con.drawString("FIGHT",180,690);
 				con.drawString("FLIGHT",565,690);
@@ -250,17 +268,14 @@ public class ReviewProject{
             }
         }
     }
-
-    //fight option for battle
-    public static void Fight(Console con, String strE, int intEHealth, boolean blnFight){
-        Clear(con);
+    public static void Fight(Console con, String strE, int intEHealth, boolean blnFight, int intMapChoice){
         BattleBkg(con, strE, intEHealth);
         //variables
         int intMouseX = 0;
 		int intMouseY = 0;
 		int intMouseClick = 0;
         int intRabbit;
-
+        //fighting part of the battle
         while((blnFight = true) && (intEHealth > 0) && (intHealth > 0)){
             intMouseX = con.currentMouseX();
 			intMouseY = con.currentMouseY();
@@ -272,6 +287,7 @@ public class ReviewProject{
 
                 if(intMouseClick == 1){
                     //animate hand moving in and out to poke
+                    Poke(con, strE, intEHealth);
                     intEHealth -= EDmg(strE);
                     intHealth -= HDmg(strE);
                     BattleBkg(con, strE, intEHealth);
@@ -287,6 +303,7 @@ public class ReviewProject{
                     if(intRabbit == 1){
                         //leave fight successfully
                         strE = "Rabbit";
+                        Magic(con, strE, intEHealth);
                         intEHealth -= EDmg(strE);
                         intHealth -= HDmg(strE);
                         BattleBkg(con, strE, intEHealth);
@@ -301,7 +318,6 @@ public class ReviewProject{
                 con.setDrawColor(Color.RED);
 				con.fillRect(50, 650, 325, 100);
 				con.fillRect(435, 650, 325, 100);
-				
 				con.setDrawColor(Color.WHITE);
 				con.drawString("POKE",185,690);
 				con.drawString("MAGIC",570,690);
@@ -311,42 +327,102 @@ public class ReviewProject{
         }
         if(intHealth > 0){
             blnRepeat = true;
-            Play(con);
+            Play(con, intMapChoice);
+        }
+    }
+    public static void Poke(Console con, String strE, int intEHealth){
+        int intPX = 800;
+        int intFX = 580;
+        int intFY = 260;
+        BufferedImage imgPoke = con.loadImage("poke.png"); //220x220
+        BufferedImage imgFinger = con.loadImage("finger.png"); //90x90
+        BufferedImage imgHand = con.loadImage("hand.png"); // 170x160
+
+        for(intPX = 800; intPX > 580; intPX -= 10){
+            BattleBkg(con, strE, intEHealth);
+
+            con.drawImage(imgPoke, intPX, 260);
+            con.sleep(16);
+
+            con.repaint();
+        }
+        while((intFX != 550) && (intFY != 110)){
+            BattleBkg(con, strE, intEHealth);
+
+            intFX -= 2;
+            intFY -= 10;
+            con.drawImage(imgFinger, intFX, intFY);
+            con.drawImage(imgHand, 630, 320);
+
+            con.repaint();
+        }
+        con.sleep(300);
+        while((intFX != 580) && (intFY != 260)){
+            BattleBkg(con, strE, intEHealth);
+
+            intFX += 2;
+            intFY += 10;
+            con.drawImage(imgFinger, intFX, intFY);
+            con.drawImage(imgHand, 630, 320);
+
+            con.repaint();
+        }
+        for(intPX = 580; intPX < 800; intPX += 10){
+            BattleBkg(con, strE, intEHealth);
+
+            con.drawImage(imgPoke, intPX, 260);
+            con.sleep(16);
+
+            con.repaint();
+        }
+    }
+    public static void Magic(Console con, String strE, int intEHealth){
+        int intMY;
+        BufferedImage imgMagic = con.loadImage("magic.png");
+
+        for(intMY = -300; intMY < 800; intMY += 10){
+            BattleBkg(con, strE, intEHealth);
+
+            con.drawImage(imgMagic, 425, intMY);
+            con.sleep(33);
+
+            con.repaint();
+
         }
     }
 
     //dmg calculators
     public static int EDmg(String strE){
+        //enemy defense lowers player atk by 1 every 10 def points
         if(strE.equals("Ghost")){
-            return ((int)(intDmg*1.3));
+            return (intDmg-1);
         }else if(strE.equals("Alien")){
-            return ((int)(intDmg*1.2));
+            return (intDmg-2);
         }else if(strE.equals("Bear")){
-            return (intDmg);
+            return (intDmg-3);
         }else if(strE.equals("Rabbit")){
-            return ((int)(intDmg*1.5));
+            return (intDmg);
         }
         return(intDmg);
     }
     public static int HDmg(String strE){
-        int intHurt = 10;
-        int intShields = intDefense/10;
-
+        int intEAtk = intDefense/10;
+        int intHurt;
+        //enemy dmg determined by sum of atk and every 10 defense points
         if(strE.equals("Ghost")){
-            intHurt = intShields*3;
+            intHurt = 5+intEAtk+1;
         }else if(strE.equals("Alien")){
-            intHurt = intShields*2;
+            intHurt = 10+intEAtk+2;
         }else if(strE.equals("Bear")){
-            intHurt = intShields;
-        }else if(strE.equals("Rabbit")){
-            intHurt = intShields*4;
+            intHurt = 15+intEAtk+3;
+        }else{
+            intHurt = intEAtk;
         }
-        return(intHurt-intShields);
+        return(intHurt);
     }
 
     //battle bkg
     public static void BattleBkg(Console con, String strE, int intEHealth){
-        Clear(con);
         con.setDrawColor(Color.BLACK);
         BufferedImage imgB = con.loadImage("battle.png");
         con.drawImage(imgB,0,0);
@@ -374,8 +450,8 @@ public class ReviewProject{
         }
     }
 
-    //block logics (tree, water, enemies)
-    public static int playerMovement(Console con, String strNextBlock, char chrKey, int intPlayerMovement){
+    //block logics (tree, water, etc)
+    public static int playerMovement(Console con, String strNextBlock, char chrKey, int intPlayerMovement, int intMapChoice){
         if(strNextBlock.equals("w")){
             //Water code
             intHealth = 0;
@@ -385,13 +461,13 @@ public class ReviewProject{
             intHealth += 10;
         }else if(strNextBlock.equals("e1")){
             //enemy 1 code
-            Enemy(con, "Ghost");
+            Enemy(con, "Ghost", intMapChoice);
         }else if(strNextBlock.equals("e2")){
             //enemny 2 code
-            Enemy(con, "Alien");
+            Enemy(con, "Alien", intMapChoice);
         }else if(strNextBlock.equals("e3")){
             //enemy 3 code
-            Enemy(con, "Bear");
+            Enemy(con, "Bear", intMapChoice);
         }
 
         if(!strNextBlock.equals("t")){
@@ -402,13 +478,22 @@ public class ReviewProject{
             }
         }
 
+        //sword and shield
+        if((intX == 320) && (intY == 520)){
+            intDmg += 10;
+            blnSword = true;
+        }
+        if((intX == 280) && (intY == 160)){
+            intDefense += 10;
+            blnShield = true;
+        }
+
         return intPlayerMovement;
     }
 
     //dying screen
     public static void Death(Console con){
         blnRepeat = false;
-        Clear(con);
         BufferedImage imgDead = con.loadImage("dead.png");
         con.drawImage(imgDead, 0, 0);
 
@@ -416,17 +501,36 @@ public class ReviewProject{
     }
 
     //hud
-    public static boolean HUD(Console con, int intH, int intDmg, int intD,boolean blnHUD, int intCountCol, int intCountRow, BufferedImage imgHero, String strMap[][]){
+    public static boolean HUD(Console con, int intH, int intDmg, int intD,boolean blnHUD, int intCountCol, int intCountRow, BufferedImage imgHero, String strMap[][], int intMapChoice){
         if(blnHUD == false){
             con.setDrawColor(Color.BLACK);
             con.fillRect(0, 0, 800, 100);
-            con.println("Health:  "+intH);
-            con.println("Damage:  "+intDmg);
-            con.println("Defense: "+intD);
+            con.setDrawColor(Color.WHITE);
+            con.drawString("Hero", 0, 0);
+            con.drawString("Health:  "+intH, 0, 20);
+            con.drawString("Damage:  "+intDmg, 0, 40);
+            con.drawString("Defense: "+intD, 0, 60);
+
+            con.drawString("Ghost", 200, 0);
+            con.drawString("Health:  50", 200, 20);
+            con.drawString("Damage:  5", 200, 40);
+            con.drawString("Defense: 10", 200, 60);
+
+            con.drawString("Alien", 400, 0);
+            con.drawString("Health:  50", 400, 20);
+            con.drawString("Damage:  10", 400, 40);
+            con.drawString("Defense: 20", 400, 60);
+
+            if(intMapChoice == 2){
+                con.drawString("Bear", 600, 0);
+                con.drawString("Health:  50", 600, 20);
+                con.drawString("Damage:  15", 600, 40);
+                con.drawString("Defense: 30", 600, 60);
+            }
+
             con.repaint();
             return true;
         }else{
-            Clear(con);
             drawMap(con, intCountCol, intCountRow, strMap);
             con.drawImage(imgHero,intX,intY);
             return false;
@@ -438,7 +542,6 @@ public class ReviewProject{
     public static void drawMap(Console con, int intCountColumns, int intCountRows, String strMap[][]){
         //variables
         String strSquare;
-        //square is null why sob
         int intBlockX = 0;
         int intBlockY = 0;
 
@@ -475,6 +578,16 @@ public class ReviewProject{
             intBlockX = 0;
             intBlockY += 40;
         }
+        //adding sword and shield
+        if(blnSword == false){
+            BufferedImage imgSword = con.loadImage("sword.png");
+            con.drawImage(imgSword,320,520);
+        }
+        if(blnShield == false){
+            BufferedImage imgShield = con.loadImage("shield.png");
+            con.drawImage(imgShield,280,160);
+        }
+
         con.repaint();
     }
 
@@ -486,8 +599,11 @@ public class ReviewProject{
 		int intMouseClick = 0;
 		String strRepeat;
 		strRepeat = "yes";
-        
-        Clear(con);
+
+        //map icons
+        BufferedImage imgMap1 = con.loadImage("map 1.png");
+        BufferedImage imgMap2 = con.loadImage("map 2.png");
+
         con.setDrawColor(Color.WHITE);
         con.drawString("Pick Your Difficulty",275,140);
 
@@ -498,49 +614,42 @@ public class ReviewProject{
 			intMouseClick = con.currentMouseButton();
 			
 			if(((intMouseX >= 100) && (intMouseX <= 350)) && ((intMouseY >= 300) && (intMouseY <= 600))){
-				//play button
+				//lvl 1 map button
+                con.drawImage(imgMap1, 125, 325);
 				con.setDrawColor(Color.RED);
                 con.drawString("LVL 1",190,570);
                 
                 if(intMouseClick == 1){
                     strRepeat = "no";
-
                     return 1;
                 }
-
 				con.repaint();
 			}else if(((intMouseX >= 450) && (intMouseX <= 700)) && ((intMouseY >= 300) && (intMouseY <= 600))){
-				//map button
+				//lvl 2 map button
+                con.drawImage(imgMap2, 475, 325);
 				con.setDrawColor(Color.RED);
                 con.drawString("LVL 2",540,570);
                 
                 if(intMouseClick == 1){                    
                     strRepeat = "no";
-
                     return 2;
                 }
-
                 con.repaint();
 			}else{
-				//redraws buttons, words, and outline if user is not hovering button
+                //redraws buttons and words if user is not hovering button
 				con.setDrawColor(Color.WHITE);
                 con.fillRect(100, 300, 250, 300);
                 con.fillRect(450, 300, 250, 300);
                 con.setDrawColor(Color.RED);
                 con.drawString("LVL 1",190,570);
                 con.drawString("LVL 2",540,570);
+
+                con.drawImage(imgMap1, 125, 325);
+				con.drawImage(imgMap2, 475, 325);
 								
 				con.repaint();
             }
         }
         return 1;
     }
-
-    //clears screen
-	public static void Clear(Console con){
-		con.sleep(500);
-		con.setDrawColor(Color.BLACK);
-		con.fillRect(0,0,800,800);
-		con.clear();
-	}
 }
