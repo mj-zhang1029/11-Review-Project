@@ -46,6 +46,11 @@ public class ReviewProject{
 		int intMouseY = 0;
 		int intMouseClick = 0;
 
+        //clears background
+        con.setDrawColor(Color.black);
+        con.fillRect(0,0,800,800);
+        con.repaint();
+
         while(true){
 			//repeatedly gets x, y, and click of mouse
 			intMouseX = con.currentMouseX();
@@ -105,6 +110,8 @@ public class ReviewProject{
         BufferedImage imgHelp = con.loadImage("help.png");
 
         while(blnHelpMenuActive == true){
+            //prints help picture while help menu is true
+            con.sleep(100);
             intMouseClick = con.currentMouseButton();
             con.drawImage(imgHelp, 0, 0);
             con.repaint();
@@ -157,10 +164,12 @@ public class ReviewProject{
             chrKey = con.currentChar();
             
             if(chrKey == 'h'){
+                //opens hud 
                 blnHUD = HUD(con, intHealth, intDmg, intDefense, blnHUD, intCountCol, intCountRow, imgHero, strMap, intMapChoice);
-                con.sleep(100);
+                con.sleep(200);
             }
             if(blnHUD == false){
+                //character movement
                 drawMap(con, intCountCol, intCountRow, strMap);
                 con.drawImage(imgHero,intX,intY);
                 if(chrKey == 'w' || chrKey == 'a' || chrKey == 's' || chrKey == 'd'){
@@ -197,7 +206,7 @@ public class ReviewProject{
                     con.sleep(200);
                 }
             }
-
+            //when health runs out, the players dies
             if(intHealth <= 0){
                 Death(con);
             }
@@ -208,7 +217,6 @@ public class ReviewProject{
     //battle animations
     public static void Enemy(Console con, String strE, int intMapChoice){
         blnRepeat = false;
-
         //variables
         int intEHealth = 50;
         int intRun;
@@ -216,7 +224,7 @@ public class ReviewProject{
 		int intMouseY = 0;
 		int intMouseClick = 0;
         boolean blnFight = false;
-
+        //battle bkg
         BattleBkg(con, strE, intEHealth);
 
         //battle will run until player or enemy dies
@@ -233,6 +241,7 @@ public class ReviewProject{
                     //if button is clicked
                     blnFight = true;
                     con.sleep(200);
+                    //fighting options (poke and magic)
                     Fight(con, strE, intEHealth, blnFight, intMapChoice);
 				}
                 con.repaint();
@@ -249,7 +258,8 @@ public class ReviewProject{
                         blnRepeat = true;
                         Play(con, intMapChoice);
                     }else{
-                        intHealth -= 10;
+                        //unable to leave fight
+                        intHealth -= HDmg(strE);
                         BattleBkg(con, strE, intEHealth);
                         con.drawString("Unable to run away", 10, 610);
                     }
@@ -301,13 +311,14 @@ public class ReviewProject{
                     //25% chance of turning enemy into rabbit
                     intRabbit = (int)(Math.random()*4+1);
                     if(intRabbit == 1){
-                        //leave fight successfully
+                        //enemy turns into rabbit (makes battle much easier)
                         strE = "Rabbit";
                         Magic(con, strE, intEHealth);
                         intEHealth -= EDmg(strE);
                         intHealth -= HDmg(strE);
                         BattleBkg(con, strE, intEHealth);
                     }else{
+                        //enemy did not turn into rabbit
                         intHealth -= HDmg(strE);
                         BattleBkg(con, strE, intEHealth);
                         con.drawString("Magic failed", 10, 610);
@@ -326,6 +337,7 @@ public class ReviewProject{
             }
         }
         if(intHealth > 0){
+            //goes back to main playing function if player is alive
             blnRepeat = true;
             Play(con, intMapChoice);
         }
@@ -336,8 +348,9 @@ public class ReviewProject{
         int intFY = 260;
         BufferedImage imgPoke = con.loadImage("poke.png"); //220x220
         BufferedImage imgFinger = con.loadImage("finger.png"); //90x90
-        BufferedImage imgHand = con.loadImage("hand.png"); // 170x160
+        BufferedImage imgHand = con.loadImage("hand.png"); //170x160
 
+        //hand moving onto screen
         for(intPX = 800; intPX > 580; intPX -= 10){
             BattleBkg(con, strE, intEHealth);
 
@@ -346,6 +359,7 @@ public class ReviewProject{
 
             con.repaint();
         }
+        //finger flying to poke enemy
         while((intFX != 550) && (intFY != 110)){
             BattleBkg(con, strE, intEHealth);
 
@@ -356,6 +370,7 @@ public class ReviewProject{
 
             con.repaint();
         }
+        //pause before finger flying back
         con.sleep(300);
         while((intFX != 580) && (intFY != 260)){
             BattleBkg(con, strE, intEHealth);
@@ -367,6 +382,7 @@ public class ReviewProject{
 
             con.repaint();
         }
+        //hand going out of screen
         for(intPX = 580; intPX < 800; intPX += 10){
             BattleBkg(con, strE, intEHealth);
 
@@ -380,6 +396,7 @@ public class ReviewProject{
         int intMY;
         BufferedImage imgMagic = con.loadImage("magic.png");
 
+        //sparkles for magic effect
         for(intMY = -300; intMY < 800; intMY += 10){
             BattleBkg(con, strE, intEHealth);
 
@@ -437,6 +454,7 @@ public class ReviewProject{
         if(strE.equals("Ghost")){
             BufferedImage imgE = con.loadImage("benemy1.png");
             con.drawImage(imgE,450,20);
+
         }else if(strE.equals("Alien")){
             BufferedImage imgE = con.loadImage("benemy2.png");
             con.drawImage(imgE,450,20);
@@ -444,20 +462,22 @@ public class ReviewProject{
         }else if(strE.equals("Bear")){
             BufferedImage imgE = con.loadImage("benemy3.png");
             con.drawImage(imgE,450,20);
+        
         }else if(strE.equals("Rabbit")){
             BufferedImage imgE = con.loadImage("rabbit.png");
             con.drawImage(imgE,450,20);
+
         }
     }
 
     //block logics (tree, water, etc)
     public static int playerMovement(Console con, String strNextBlock, char chrKey, int intPlayerMovement, int intMapChoice){
         if(strNextBlock.equals("w")){
-            //Water code
+            //player dies in water
             intHealth = 0;
             Death(con);
         }else if(strNextBlock.equals("b")){
-            //health code
+            //building adds 10 health
             intHealth += 10;
         }else if(strNextBlock.equals("e1")){
             //enemy 1 code
@@ -470,6 +490,7 @@ public class ReviewProject{
             Enemy(con, "Bear", intMapChoice);
         }
 
+        //stops player from walking into trees
         if(!strNextBlock.equals("t")){
             if(chrKey == 'w' || chrKey == 'a'){
                 intPlayerMovement -= 40;
@@ -478,7 +499,7 @@ public class ReviewProject{
             }
         }
 
-        //sword and shield
+        //items
         if((intX == 320) && (intY == 520)){
             intDmg += 10;
             blnSword = true;
@@ -578,12 +599,13 @@ public class ReviewProject{
             intBlockX = 0;
             intBlockY += 40;
         }
-        //adding sword and shield
-        if(blnSword == false){
+        //drawing items
+        //only prints items if player is within 2 block radius of item
+        if((intX >  200) && (intX < 440) && (intY > 400) && (intY < 640) && (blnSword == false)){
             BufferedImage imgSword = con.loadImage("sword.png");
             con.drawImage(imgSword,320,520);
         }
-        if(blnShield == false){
+        if((intX >  160) && (intX < 400) && (intY > 40) && (intY < 280) && (blnShield == false)){
             BufferedImage imgShield = con.loadImage("shield.png");
             con.drawImage(imgShield,280,160);
         }
